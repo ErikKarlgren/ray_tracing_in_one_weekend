@@ -1,6 +1,8 @@
 mod color;
 mod ray;
 mod vec3;
+mod hittable;
+mod sphere;
 
 use color::Color;
 use ray::Ray;
