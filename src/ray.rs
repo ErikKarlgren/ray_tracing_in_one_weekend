@@ -2,6 +2,7 @@
 use crate::vec3::Vec3;
 
 /// Struct that represents a ray.
+#[derive(Clone, Copy)]
 pub struct Ray {
     pub origin: Vec3,
     pub direction: Vec3,
