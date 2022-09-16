@@ -7,21 +7,6 @@ use ray::Ray;
 use std::fmt::Write;
 use vec3::Vec3;
 
-/// Returns the background color
-fn ray_color(ray: Ray) -> Color {
-    // We generate a white-blue gradient based on the 'y' coordinate.
-    // The higher the 'y', the 'bluer' the pixel.
-    // The lower the 'y', the whiter the pixel.
-    // Since Rays use unit vectors for directions, it will be blue
-    // the most on the middle-top of the image
-    let t = 0.5 * (ray.direction.y + 1.0);
-    let white = Color::new(1.0, 1.0, 1.0);
-    let blue = Color::new(0.5, 0.7, 1.0);
-
-    // This is called a 'linear interpolation'
-    (1.0 - t) * white + t * blue
-}
-
 fn main() {
     // Image
     let aspect_ratio = 16.0 / 9.0; // width / height
@@ -59,7 +44,43 @@ fn main() {
         }
     }
     print!("{image}");
-    eprintln!("\nDone!");
+}
+
+/// Returns the background color
+fn ray_color(ray: Ray) -> Color {
+    if hit_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, ray) {
+        return Color::new(1.0, 0.0, 0.0);
+    }
+
+    // We generate a white-blue gradient based on the 'y' coordinate.
+    // The higher the 'y', the 'bluer' the pixel.
+    // The lower the 'y', the whiter the pixel.
+    // Since Rays use unit vectors for directions, it will be blue
+    // the most on the middle-top of the image
+    let t = 0.5 * (ray.direction.y + 1.0);
+    let white = Color::new(1.0, 1.0, 1.0);
+    let blue = Color::new(0.5, 0.7, 1.0);
+
+    // This is called a 'linear interpolation'
+    (1.0 - t) * white + t * blue
+}
+
+fn hit_sphere(center: Vec3, radius: f64, ray: Ray) -> bool {
+    // We'll use the quadratic formula to check if a ray hits a sphere
+    // at² + bt + c = 0
+    let oc = ray.origin - center;
+
+    let a = ray.direction.dot(ray.direction);
+    let b = (2.0 * ray.direction).dot(oc);
+    let c = oc.dot(oc) - (radius * radius);
+
+    // t = (-b +- sqrt(b² - 4*a*c)/2*a)
+    let in_sqrt = b * b - 4.0 * a * c;
+
+    // if in_sqrt > 0 => 2 real solutions => ray intersects sphere
+    // if in_sqrt == 0 => 1 real solution => ray is tangent to sphere (not what we want?)
+    // if in_sqrt < 0 => no real solutions => ray does not touch sphere
+    in_sqrt > 0.0
 }
 
 fn write_color(image: &mut String, color: Color) {
