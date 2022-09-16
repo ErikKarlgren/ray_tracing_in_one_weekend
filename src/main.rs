@@ -75,12 +75,13 @@ fn hit_sphere(center: Vec3, radius: f64, ray: Ray) -> Option<f64> {
     // 't' is the distance from the ray's origin to where it hits the sphere
     let oc = ray.origin - center;
 
-    let a = ray.direction.dot(ray.direction);
-    let b = (2.0 * ray.direction).dot(oc);
-    let c = oc.dot(oc) - (radius * radius);
+    let a = ray.direction.length_squared();
+    // let b = (2.0 * ray.direction).dot(oc);
+    let half_b = ray.direction.dot(oc);
+    let c = oc.length_squared() - (radius * radius);
 
     // t = (-b +- sqrt(b² - 4*a*c)/2*a)
-    let discriminant = b * b - 4.0 * a * c;
+    let discriminant = half_b * half_b - a * c;
 
     // discriminant > 0   => 2 real solutions  => ray hits sphere
     // discriminant == 0  => 1 real solution   => ray is tangent to sphere
@@ -91,7 +92,7 @@ fn hit_sphere(center: Vec3, radius: f64, ray: Ray) -> Option<f64> {
         // It seems we only care about the hit point we can actually see,
         // so we just calculate one and not both.
         // If there was only one hit point, we get it anyways.
-        Some((-b - discriminant.sqrt()) / (2.0 * a))
+        Some((-half_b - discriminant.sqrt()) / a)
     }
 }
 
