@@ -1,5 +1,6 @@
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
+/// Struct that can either represent a 3D vector or a 3D point.
 #[derive(Clone, Copy)]
 pub struct Vec3 {
     pub x: f64,
@@ -8,10 +9,12 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
+    /// Create a new Vec3 from 3 coordinates
     pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
         Vec3 { x, y, z }
     }
 
+    /// Create a new Vec3 with coordinates (0, 0, 0)
     pub fn zero() -> Vec3 {
         Vec3 {
             x: 0.0,
@@ -20,18 +23,22 @@ impl Vec3 {
         }
     }
 
+    /// Return the squared length of this vector
     pub fn length_squared(self) -> f64 {
         self.x * self.x + self.y * self.y + self.z * self.z
     }
 
+    /// Return the length of this vector
     pub fn length(self) -> f64 {
         self.length_squared().sqrt()
     }
 
+    /// Multiply this vector with another one using the dot product
     pub fn dot(self, other: Vec3) -> f64 {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
 
+    /// Multiply this vector with another one using the cross product
     pub fn cross(self, other: Vec3) -> Vec3 {
         Vec3 {
             x: self.y * other.z - self.z * other.y,
@@ -40,6 +47,7 @@ impl Vec3 {
         }
     }
 
+    /// Return the unit vector with the same direction as this one
     pub fn unit_vec(self) -> Vec3 {
         self / self.length()
     }
