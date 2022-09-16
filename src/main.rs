@@ -48,8 +48,10 @@ fn main() {
 
 /// Returns the background color
 fn ray_color(ray: Ray) -> Color {
-    if hit_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, ray) {
-        return Color::new(1.0, 0.0, 0.0);
+    let sphere_center = Vec3::new(0.0, 0.0, -1.0);
+    if let Some(dist) = hit_sphere(sphere_center, 0.5, ray) {
+        let normal_vec = ray.at(dist) - sphere_center;
+        return 0.5 * Color::new(normal_vec.x + 1.0, normal_vec.y + 1.0, normal_vec.z + 1.0);
     }
 
     // We generate a white-blue gradient based on the 'y' coordinate.
@@ -65,9 +67,12 @@ fn ray_color(ray: Ray) -> Color {
     (1.0 - t) * white + t * blue
 }
 
-fn hit_sphere(center: Vec3, radius: f64, ray: Ray) -> bool {
+/// If the ray hits the sphere, return the distance from the
+/// ray's origin to the nearest hit point to the sphere.
+fn hit_sphere(center: Vec3, radius: f64, ray: Ray) -> Option<f64> {
     // We'll use the quadratic formula to check if a ray hits a sphere
     // at² + bt + c = 0
+    // 't' is the distance from the ray's origin to where it hits the sphere
     let oc = ray.origin - center;
 
     let a = ray.direction.dot(ray.direction);
@@ -75,12 +80,19 @@ fn hit_sphere(center: Vec3, radius: f64, ray: Ray) -> bool {
     let c = oc.dot(oc) - (radius * radius);
 
     // t = (-b +- sqrt(b² - 4*a*c)/2*a)
-    let in_sqrt = b * b - 4.0 * a * c;
+    let discriminant = b * b - 4.0 * a * c;
 
-    // if in_sqrt > 0 => 2 real solutions => ray intersects sphere
-    // if in_sqrt == 0 => 1 real solution => ray is tangent to sphere (not what we want?)
-    // if in_sqrt < 0 => no real solutions => ray does not touch sphere
-    in_sqrt > 0.0
+    // discriminant > 0   => 2 real solutions  => ray hits sphere
+    // discriminant == 0  => 1 real solution   => ray is tangent to sphere
+    // discriminant < 0   => no real solutions => ray does not hit sphere
+    if discriminant < 0.0 {
+        None
+    } else {
+        // It seems we only care about the hit point we can actually see,
+        // so we just calculate one and not both.
+        // If there was only one hit point, we get it anyways.
+        Some((-b - discriminant.sqrt()) / (2.0 * a))
+    }
 }
 
 fn write_color(image: &mut String, color: Color) {
