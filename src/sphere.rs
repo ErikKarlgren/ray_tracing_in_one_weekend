@@ -1,3 +1,5 @@
+use std::ops::Range;
+
 use crate::{
     hittable::{HitRecord, Hittable},
     ray::Ray,
@@ -10,7 +12,7 @@ pub struct Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hit(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_range: &Range<f64>) -> Option<HitRecord> {
         // We'll use the quadratic formula to check if a ray hits a sphere
         // at² + bt + c = 0
         // 't' is the distance from the ray's origin to where it hits the sphere
@@ -35,9 +37,9 @@ impl Hittable for Sphere {
         let dist = {
             let neg_t = (-half_b - sqrt_d) / a;
             let pos_t = (-half_b + sqrt_d) / a;
-            if (t_min..t_max).contains(&neg_t) {
+            if t_range.contains(&neg_t) {
                 neg_t
-            } else if (t_min..t_max).contains(&pos_t) {
+            } else if t_range.contains(&pos_t) {
                 pos_t
             } else {
                 return None;
