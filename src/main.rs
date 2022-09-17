@@ -41,15 +41,15 @@ fn main() {
                 origin,
                 lower_left_corner + u * horizontal + v * vertical - origin,
             );
-            let color = ray_color(ray);
-            write_color(&mut image, color);
+            let color = ray_color(&ray);
+            write_color(&mut image, &color);
         }
     }
     print!("{image}");
 }
 
 /// Returns the background color
-fn ray_color(ray: Ray) -> Color {
+fn ray_color(ray: &Ray) -> Color {
     let sphere_center = Vec3::new(0.0, 0.0, -1.0);
     if let Some(dist) = hit_sphere(sphere_center, 0.5, ray) {
         let normal_vec = ray.at(dist) - sphere_center;
@@ -71,7 +71,7 @@ fn ray_color(ray: Ray) -> Color {
 
 /// If the ray hits the sphere, return the distance from the
 /// ray's origin to the nearest hit point to the sphere.
-fn hit_sphere(center: Vec3, radius: f64, ray: Ray) -> Option<f64> {
+fn hit_sphere(center: Vec3, radius: f64, ray: &Ray) -> Option<f64> {
     // We'll use the quadratic formula to check if a ray hits a sphere
     // at² + bt + c = 0
     // 't' is the distance from the ray's origin to where it hits the sphere
@@ -98,7 +98,7 @@ fn hit_sphere(center: Vec3, radius: f64, ray: Ray) -> Option<f64> {
     }
 }
 
-fn write_color(image: &mut String, color: Color) {
+fn write_color(image: &mut String, color: &Color) {
     let Color { red, green, blue } = color;
     let red = (255.999 * red) as i32;
     let green = (255.999 * green) as i32;

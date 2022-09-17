@@ -51,6 +51,7 @@ impl Hittable for Sphere {
             hit_point,
             (hit_point - self.center) / self.radius,
             dist,
+            ray,
         ))
     }
 }
