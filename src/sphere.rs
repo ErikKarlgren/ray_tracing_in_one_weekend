@@ -11,8 +11,14 @@ pub struct Sphere {
     pub radius: f64,
 }
 
+impl Sphere {
+    pub fn new(center: Vec3, radius: f64) -> Sphere {
+        Sphere { center, radius }
+    }
+}
+
 impl Hittable for Sphere {
-    fn hit(&self, ray: &Ray, t_range: &Range<f64>) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, hit_range: &Range<f64>) -> Option<HitRecord> {
         // We'll use the quadratic formula to check if a ray hits a sphere
         // at² + bt + c = 0
         // 't' is the distance from the ray's origin to where it hits the sphere
@@ -37,9 +43,9 @@ impl Hittable for Sphere {
         let dist = {
             let neg_t = (-half_b - sqrt_d) / a;
             let pos_t = (-half_b + sqrt_d) / a;
-            if t_range.contains(&neg_t) {
+            if hit_range.contains(&neg_t) {
                 neg_t
-            } else if t_range.contains(&pos_t) {
+            } else if hit_range.contains(&pos_t) {
                 pos_t
             } else {
                 return None;
