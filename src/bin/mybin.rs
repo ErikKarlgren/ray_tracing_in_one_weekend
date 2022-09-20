@@ -1,19 +1,6 @@
-mod color;
-mod hittable;
-mod hittable_list;
-mod ray;
-mod rtweekend;
-mod sphere;
-mod vec3;
+use ray_tracing_in_one_weekend::{Color, HittableList, Sphere, Hittable, Ray, Vec3};
 
-use color::Color;
-use hittable::Hittable;
-use ray::Ray;
-use rtweekend::INFINITY;
 use std::fmt::Write;
-use vec3::Vec3;
-
-use crate::{hittable_list::HittableList, sphere::Sphere};
 
 fn main() {
     // Image
@@ -71,7 +58,7 @@ fn create_world() -> HittableList {
 
 /// Returns the background color
 fn ray_color(ray: &Ray, world: &HittableList) -> Color {
-    if let Some(hit) = world.hit(ray, &(0.0..INFINITY)) {
+    if let Some(hit) = world.hit(ray, &(0.0..f64::INFINITY)) {
         return 0.5 * Color::new(hit.normal.x + 1.0, hit.normal.y + 1.0, hit.normal.z + 1.0);
     }
 
