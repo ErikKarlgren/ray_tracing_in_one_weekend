@@ -8,8 +8,7 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new() -> Camera {
-        let aspect_ratio = 16.0 / 9.0;
+    pub fn new(aspect_ratio: f64) -> Camera {
         let viewport_height = 2.0;
         let viewport_width = aspect_ratio * viewport_height;
         let focal_length = 1.0;
@@ -33,5 +32,11 @@ impl Camera {
             self.origin,
             self.lower_left_corner + u * self.horizontal + v * self.vertical - self.origin,
         )
+    }
+}
+
+impl Default for Camera {
+    fn default() -> Self {
+        Camera::new(16.0 / 9.0)
     }
 }

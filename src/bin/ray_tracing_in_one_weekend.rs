@@ -1,4 +1,6 @@
-use ray_tracing_in_one_weekend::{Color, HittableList, Sphere, Hittable, Ray, Vec3};
+use ray_tracing_in_one_weekend::{
+    clamp, random_num, Camera, Color, Hittable, HittableList, Ray, Sphere, Vec3,
+};
 
 use std::fmt::Write;
 
@@ -7,38 +9,33 @@ fn main() {
     let aspect_ratio = 16.0 / 9.0; // width / height
     let image_width: usize = 400;
     let image_height: usize = (image_width as f64 / aspect_ratio) as usize;
+    let samples_per_pixel = 100;
 
-    // Estimated chars per color in image: 12
-    // 50 extra bytes for header, just in case
-    let mut image = String::with_capacity(image_width * image_height * 12 + 50);
+    let mut image = String::new();
 
     // World
     let world = create_world();
 
     // Camera
-    let viewport_height = 2.0;
-    let viewport_width = aspect_ratio * viewport_height;
-    let focal_length = 1.0;
+    let camera = Camera::new(aspect_ratio);
 
-    let origin = Vec3::zero();
-    let horizontal = Vec3::new(viewport_width, 0.0, 0.0);
-    let vertical = Vec3::new(0.0, viewport_height, 0.0);
-    let lower_left_corner =
-        origin - horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, focal_length);
+    // Random numbers
+    // let mut random = thread_rng();
+    // let distr = Uniform::from(0.0..1e7);
 
     // Render
     write!(&mut image, "P3\n{} {}\n255\n", image_width, image_height).unwrap();
 
     for y in (0..image_height).into_iter().rev() {
         for x in 0..image_width {
-            let u = x as f64 / (image_width - 1) as f64;
-            let v = y as f64 / (image_height - 1) as f64;
-            let ray = Ray::new(
-                origin,
-                lower_left_corner + u * horizontal + v * vertical - origin,
-            );
-            let color = ray_color(&ray, &world);
-            write_color(&mut image, &color);
+            let mut pixel_color = Color::new(0.0, 0.0, 0.0);
+            for _ in 0..samples_per_pixel {
+                let u = ((x as f64) + random_num()) / ((image_width - 1) as f64);
+                let v = ((y as f64) + random_num()) / ((image_height - 1) as f64);
+                let ray = camera.get_ray(u, v);
+                pixel_color += ray_color(&ray, &world);
+            }
+            write_color(&mut image, pixel_color, samples_per_pixel);
         }
     }
     print!("{image}");
@@ -75,10 +72,24 @@ fn ray_color(ray: &Ray, world: &HittableList) -> Color {
     (1.0 - t) * white + t * blue
 }
 
-fn write_color(image: &mut String, color: &Color) {
-    let Color { red, green, blue } = color;
-    let red = (255.999 * red) as i32;
-    let green = (255.999 * green) as i32;
-    let blue = (255.999 * blue) as i32;
+fn write_color(image: &mut String, color: Color, samples_per_pixel: u32) {
+    let Color {
+        mut red,
+        mut green,
+        mut blue,
+    } = color;
+
+    // Divide color by number of samples
+    let scale = 1.0 / samples_per_pixel as f64;
+    red *= scale;
+    green *= scale;
+    blue *= scale;
+
+    let translate_color = |c| 256.0 * clamp(c, 0.0..=0.999);
+
+    let red = translate_color(red) as i32;
+    let green = translate_color(green) as i32;
+    let blue = translate_color(blue) as i32;
+
     writeln!(image, "{red} {green} {blue}").unwrap();
 }
