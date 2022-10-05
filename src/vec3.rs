@@ -1,4 +1,6 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Range, Sub, SubAssign};
+
+use crate::rtweekend::{random_num, random_num_in_range};
 
 /// Struct that can either represent a 3D vector or a 3D point.
 #[derive(Clone, Copy)]
@@ -21,6 +23,40 @@ impl Vec3 {
             y: 0.0,
             z: 0.0,
         }
+    }
+
+    /// Return a random vector for which `x`, `y` and `z` belong to the range [0.0, 1.0)
+    pub fn random_vec() -> Vec3 {
+        Vec3 {
+            x: random_num(),
+            y: random_num(),
+            z: random_num(),
+        }
+    }
+
+    /// Return a random vector for which `x`, `y` and `z` belong to the given range
+    pub fn random_vec_with_range(range: Range<f64>) -> Vec3 {
+        Vec3 {
+            x: random_num_in_range(range.clone()),
+            y: random_num_in_range(range.clone()),
+            z: random_num_in_range(range),
+        }
+    }
+
+    /// Return a random point in a unit sphere (sphere of radius=1)
+    pub fn random_point_in_unit_sphere() -> Vec3 {
+        loop {
+            let point = Vec3::random_vec_with_range(-1.0..1.0);
+            // length_squared() is faster than length(), and if length() < 1, then length_squared() < 1
+            if point.length_squared() < 1.0 {
+                return point;
+            }
+        }
+    }
+
+    /// Return a random unit vector
+    pub fn random_unit_vec() -> Vec3 {
+        Vec3::random_point_in_unit_sphere().unit_vec()
     }
 
     /// Return the squared length of this vector

@@ -7,12 +7,7 @@ mod rtweekend;
 mod sphere;
 mod vec3;
 
-pub use {
-    hittable::Hittable,
-    hittable_list::HittableList,
-    vec3::Vec3,
-    sphere::Sphere,
-};
+pub use {hittable::Hittable, hittable_list::HittableList, sphere::Sphere, vec3::Vec3};
 
 use {
     camera::Camera,
@@ -29,6 +24,7 @@ pub fn create_image(world: &HittableList) -> String {
     let image_width: usize = 400;
     let image_height: usize = (image_width as f64 / aspect_ratio) as usize;
     let samples_per_pixel = 100;
+    let max_depth = 50;
 
     let mut image = String::new();
 
@@ -45,7 +41,7 @@ pub fn create_image(world: &HittableList) -> String {
                 let u = ((x as f64) + random_num()) / ((image_width - 1) as f64);
                 let v = ((y as f64) + random_num()) / ((image_height - 1) as f64);
                 let ray = camera.get_ray(u, v);
-                pixel_color += ray_color(&ray, &world);
+                pixel_color += ray_color(&ray, world, max_depth);
             }
             write_color(&mut image, pixel_color, samples_per_pixel);
         }
@@ -54,9 +50,15 @@ pub fn create_image(world: &HittableList) -> String {
 }
 
 /// Returns the background color
-fn ray_color(ray: &Ray, world: &HittableList) -> Color {
-    if let Some(hit) = world.hit(ray, &(0.0..f64::INFINITY)) {
-        return 0.5 * Color::new(hit.normal.x + 1.0, hit.normal.y + 1.0, hit.normal.z + 1.0);
+fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color {
+    if depth <= 0 {
+        return Color::new(0.0, 0.0, 0.0);
+    }
+
+    if let Some(hit) = world.hit(ray, &(0.001..f64::INFINITY)) {
+        let target_point = hit.point + hit.normal + Vec3::random_unit_vec();
+        let bouncing_ray = Ray::new(hit.point, target_point - hit.point);
+        return 0.5 * ray_color(&bouncing_ray, world, depth - 1);
     }
 
     // We generate a white-blue gradient based on the 'y' coordinate.
@@ -81,9 +83,10 @@ fn write_color(image: &mut String, color: Color, samples_per_pixel: u32) {
 
     // Divide color by number of samples
     let scale = 1.0 / samples_per_pixel as f64;
-    red *= scale;
-    green *= scale;
-    blue *= scale;
+    let scale_color = |c: f64| (c * scale).sqrt();
+    red = scale_color(red);
+    green = scale_color(green);
+    blue = scale_color(blue);
 
     let translate_color = |c| 256.0 * clamp(c, 0.0..=0.999);
 
