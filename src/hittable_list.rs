@@ -37,9 +37,9 @@ impl Hittable for HittableList {
 
         for obj in &self.objects {
             let new_range = hit_range.start..closest_hit_dist;
-            if let opt_hit @ Some(hit) = obj.hit(ray, &new_range) {
-                closest_hit = opt_hit;
+            if let Some(hit) = obj.hit(ray, &new_range) {
                 closest_hit_dist = hit.dist;
+                closest_hit = Some(hit);
             }
         }
         closest_hit

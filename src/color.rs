@@ -1,5 +1,6 @@
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
+#[derive(Clone)]
 pub struct Color {
     pub red: f64,
     pub green: f64,
@@ -49,6 +50,18 @@ impl SubAssign for Color {
         self.red -= rhs.red;
         self.green -= rhs.green;
         self.blue -= rhs.blue;
+    }
+}
+
+impl Mul for Color {
+    type Output = Self;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        Color {
+            red: self.red * rhs.red,
+            green: self.green * rhs.green,
+            blue: self.blue * rhs.blue,
+        }
     }
 }
 

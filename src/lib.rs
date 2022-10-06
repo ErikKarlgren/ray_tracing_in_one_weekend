@@ -2,26 +2,32 @@ mod camera;
 mod color;
 mod hittable;
 mod hittable_list;
+mod material;
 mod ray;
 mod rtweekend;
 mod sphere;
 mod vec3;
 
-pub use {hittable::Hittable, hittable_list::HittableList, sphere::Sphere, vec3::Vec3};
+pub use {
+    color::Color,
+    hittable::Hittable,
+    hittable_list::HittableList,
+    material::{Lambertian, Material, Metal},
+    sphere::Sphere,
+    vec3::Vec3,
+};
 
 use {
     camera::Camera,
-    color::Color,
     ray::Ray,
     rtweekend::{clamp, random_num},
 };
 
 use std::fmt::Write;
 
-pub fn create_image(world: &HittableList) -> String {
+pub fn create_image(world: &HittableList, image_width: usize) -> String {
     // Image
     let aspect_ratio = 16.0 / 9.0; // width / height
-    let image_width: usize = 400;
     let image_height: usize = (image_width as f64 / aspect_ratio) as usize;
     let samples_per_pixel = 100;
     let max_depth = 50;
@@ -56,9 +62,10 @@ fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color {
     }
 
     if let Some(hit) = world.hit(ray, &(0.001..f64::INFINITY)) {
-        let target_point = hit.point + hit.normal + Vec3::random_unit_vec();
-        let bouncing_ray = Ray::new(hit.point, target_point - hit.point);
-        return 0.5 * ray_color(&bouncing_ray, world, depth - 1);
+        if let Some((scattered_ray, attenuation)) = hit.material.scatter(ray, &hit) {
+            return attenuation * ray_color(&scattered_ray, world, depth - 1);
+        }
+        return Color::new(0.0, 0.0, 0.0);
     }
 
     // We generate a white-blue gradient based on the 'y' coordinate.

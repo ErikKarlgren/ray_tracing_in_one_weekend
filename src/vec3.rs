@@ -87,6 +87,17 @@ impl Vec3 {
     pub fn unit_vec(self) -> Vec3 {
         self / self.length()
     }
+
+    /// Return true if this vector is really close to the vector (0,0,0)
+    pub fn is_near_zero(self) -> bool {
+        let threshold = 1e-8;
+        (self.x.abs() < threshold) && (self.y.abs() < threshold) && (self.z.abs() < threshold)
+    }
+
+    /// Return the reflection of this vector given a normal vector
+    pub fn reflect(self, normal: Vec3) -> Vec3 {
+        self - 2.0 * self.dot(normal) * normal
+    }
 }
 
 impl Add for Vec3 {
