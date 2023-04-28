@@ -12,7 +12,7 @@ pub use {
     color::Color,
     hittable::Hittable,
     hittable_list::HittableList,
-    material::{Lambertian, Material, Metal},
+    material::{Dielectric, Lambertian, Material, Metal},
     sphere::Sphere,
     vec3::Vec3,
 };
@@ -61,7 +61,9 @@ fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color {
         return Color::new(0.0, 0.0, 0.0);
     }
 
-    if let Some(hit) = world.hit(ray, &(0.001..f64::INFINITY)) {
+    let desired_hit_distance = 0.001..f64::INFINITY;
+
+    if let Some(hit) = world.hit(ray, &desired_hit_distance) {
         if let Some((scattered_ray, attenuation)) = hit.material.scatter(ray, &hit) {
             return attenuation * ray_color(&scattered_ray, world, depth - 1);
         }
@@ -91,6 +93,7 @@ fn write_color(image: &mut String, color: Color, samples_per_pixel: u32) {
     // Divide color by number of samples
     let scale = 1.0 / samples_per_pixel as f64;
     let scale_color = |c: f64| (c * scale).sqrt();
+
     red = scale_color(red);
     green = scale_color(green);
     blue = scale_color(blue);

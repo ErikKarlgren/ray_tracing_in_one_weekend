@@ -98,6 +98,18 @@ impl Vec3 {
     pub fn reflect(self, normal: Vec3) -> Vec3 {
         self - 2.0 * self.dot(normal) * normal
     }
+
+    /// Return the refraction of this vector given:
+    /// - The normal vector.
+    /// - The ratio between the refrection index of the material `self` is in and
+    ///   the refraction index of the material where the refracted ray is in.
+    pub fn refract(self, normal: Vec3, refraction_ratio: f64) -> Vec3 {
+        let self_unit = self.unit_vec();
+        let cos_theta = normal.dot(-self_unit).min(1.0);
+        let refracted_perp = refraction_ratio * (self_unit + cos_theta * normal);
+        let refracted_parallel = normal * (-(1.0 - refracted_perp.length_squared()).abs().sqrt());
+        refracted_parallel + refracted_perp
+    }
 }
 
 impl Add for Vec3 {
