@@ -10,13 +10,21 @@ pub struct Vec3 {
     pub z: f64,
 }
 
-impl Vec3 {
-    /// Create a new Vec3 from 3 coordinates
-    pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
-        Vec3 { x, y, z }
-    }
+/// Create a `Vec3` out of 3 `f64` values
+#[macro_export]
+macro_rules! vec3 {
+    ($x:expr, $y:expr, $z:expr) => {
+        Vec3 {
+            x: $x,
+            y: $y,
+            z: $z,
+        }
+    };
+}
 
-    /// Create a new Vec3 with coordinates (0, 0, 0)
+impl Vec3 {
+    /// Create a new Vec3 with coordinates (0.0, 0.0, 0.0).
+    /// Equivalent to `vec3!(0.0, 0.0, 0.0)`
     pub fn zero() -> Vec3 {
         Vec3 {
             x: 0.0,

@@ -1,5 +1,5 @@
 //mod crate::vec3;
-use crate::vec3::Vec3;
+use crate::vector3::Vec3;
 
 /// Struct that represents a ray.
 #[derive(Clone, Copy)]
