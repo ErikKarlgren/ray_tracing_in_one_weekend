@@ -14,22 +14,23 @@ pub use {
     hittable::Hittable,
     hittable_list::HittableList,
     material::{Dielectric, Lambertian, Material, Metal},
+    rtweekend::{random_num, random_num_in_range},
     sphere::Sphere,
     vector3::Vec3,
 };
 
-use {
-    ray::Ray,
-    rtweekend::{clamp, random_num},
-};
+use {ray::Ray, rtweekend::clamp};
 
 use std::fmt::Write;
 
-pub fn create_image(world: &HittableList, camera: &Camera, image_width: usize) -> String {
+pub fn create_image(
+    world: &HittableList,
+    camera: &Camera,
+    image_width: usize,
+    samples_per_pixel: u32,
+) -> String {
     // Image
-    let aspect_ratio = 16.0 / 9.0; // width / height
-    let image_height: usize = (image_width as f64 / aspect_ratio) as usize;
-    let samples_per_pixel = 100;
+    let image_height: usize = (image_width as f64 / camera.aspect_ratio()) as usize;
     let max_depth = 50;
 
     let mut image = String::new();

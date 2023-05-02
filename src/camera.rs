@@ -83,6 +83,7 @@ impl CameraBuilder {
             v,
             _w: w,
             lens_radius,
+            aspect_ratio: self.aspect_ratio,
         }
     }
 }
@@ -96,6 +97,7 @@ pub struct Camera {
     v: Vec3,
     _w: Vec3,
     lens_radius: f64,
+    aspect_ratio: f64,
 }
 
 impl Camera {
@@ -115,6 +117,10 @@ impl Camera {
     /// Create a Camera with default values
     pub fn new() -> Camera {
         Camera::builder().build()
+    }
+
+    pub fn aspect_ratio(&self) -> f64 {
+        self.aspect_ratio
     }
 
     pub fn get_ray(&self, s: f64, t: f64) -> Ray {
