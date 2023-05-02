@@ -5,13 +5,6 @@ use crate::{
     Ray,
 };
 
-pub struct Camera {
-    origin: Vec3,
-    lower_left_corner: Vec3,
-    horizontal: Vec3,
-    vertical: Vec3,
-}
-
 /// A builder to create a Camera
 pub struct CameraBuilder {
     look_from: Vec3,
@@ -19,6 +12,8 @@ pub struct CameraBuilder {
     up_vector: Vec3,
     vertical_fov: Degrees,
     aspect_ratio: f64,
+    aperture: f64,
+    focus_distance: f64,
 }
 
 impl CameraBuilder {
@@ -47,7 +42,16 @@ impl CameraBuilder {
         self.aspect_ratio = aspect_ratio;
         self
     }
-
+    /// Aperture of the camera
+    pub fn aperture(mut self, aperture: f64) -> CameraBuilder {
+        self.aperture = aperture;
+        self
+    }
+    /// Focus distance of the camera
+    pub fn focus_distance(mut self, focus_distance: f64) -> CameraBuilder {
+        self.focus_distance = focus_distance;
+        self
+    }
     /// Create a Camera with the supplied values. If some values were not
     /// supplied by the user, the default ones will be used instead. Calling
     /// this function again will create the same Camera.
@@ -63,17 +67,35 @@ impl CameraBuilder {
         let v = w.cross(u);
 
         let origin = self.look_from;
-        let horizontal = viewport_width * u;
-        let vertical = viewport_height * v;
-        let lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - w;
+        let horizontal = self.focus_distance * viewport_width * u;
+        let vertical = self.focus_distance * viewport_height * v;
+        let lower_left_corner =
+            origin - horizontal / 2.0 - vertical / 2.0 - self.focus_distance * w;
+
+        let lens_radius = self.aperture / 2.0;
 
         Camera {
             origin,
             lower_left_corner,
             horizontal,
             vertical,
+            u,
+            v,
+            _w: w,
+            lens_radius,
         }
     }
+}
+
+pub struct Camera {
+    origin: Vec3,
+    lower_left_corner: Vec3,
+    horizontal: Vec3,
+    vertical: Vec3,
+    u: Vec3,
+    v: Vec3,
+    _w: Vec3,
+    lens_radius: f64,
 }
 
 impl Camera {
@@ -86,6 +108,8 @@ impl Camera {
             up_vector: vec3!(0.0, 1.0, 0.0),
             vertical_fov: 90.0.into(),
             aspect_ratio: 16.0 / 9.0,
+            aperture: 0.0,
+            focus_distance: 1.0,
         }
     }
     /// Create a Camera with default values
@@ -94,9 +118,20 @@ impl Camera {
     }
 
     pub fn get_ray(&self, s: f64, t: f64) -> Ray {
+        if self.lens_radius == 0.0 {
+            return Ray::new(
+                self.origin,
+                self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin,
+            );
+        }
+
+        let rd = self.lens_radius * Vec3::random_in_unit_disc();
+        let offset = self.u * rd.x + self.v * rd.y;
+        let origin_with_offset = self.origin + offset;
+
         Ray::new(
-            self.origin,
-            self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin,
+            origin_with_offset,
+            self.lower_left_corner + s * self.horizontal + t * self.vertical - origin_with_offset,
         )
     }
 }
