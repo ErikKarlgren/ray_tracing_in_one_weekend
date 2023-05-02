@@ -67,6 +67,21 @@ impl Vec3 {
         Vec3::random_point_in_unit_sphere().unit_vec()
     }
 
+    /// Return a random point in a unit disc (z = 0.0).
+    pub fn random_in_unit_disc() -> Vec3 {
+        loop {
+            let point = vec3!(
+                random_num_in_range(-1.0..1.0),
+                random_num_in_range(-1.0..1.0),
+                0.0
+            );
+            // length_squared() is faster than length(), and if length() < 1, then length_squared() < 1
+            if point.length_squared() < 1.0 {
+                return point;
+            }
+        }
+    }
+
     /// Return the squared length of this vector
     pub fn length_squared(self) -> f64 {
         self.x * self.x + self.y * self.y + self.z * self.z
