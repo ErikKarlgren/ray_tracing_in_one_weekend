@@ -1,7 +1,8 @@
 use std::rc::Rc;
 
 use ray_tracing_in_one_weekend::{
-    create_image, vec3, Camera, Color, Dielectric, HittableList, Lambertian, Metal, Sphere, Vec3,
+    color, create_image, vec3, Camera, Color, Dielectric, HittableList, Lambertian, Metal, Sphere,
+    Vec3,
 };
 
 fn main() {
@@ -18,10 +19,10 @@ fn main() {
 
 /// Creates a `HittableList` pre-populated with several items
 fn create_world() -> HittableList {
-    let ground_material = Rc::new(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
-    let center_material = Rc::new(Lambertian::new(Color::new(0.1, 0.2, 0.5)));
+    let ground_material = Rc::new(Lambertian::new(color!(0.8, 0.8, 0.0)));
+    let center_material = Rc::new(Lambertian::new(color!(0.1, 0.2, 0.5)));
     let left_material = Rc::new(Dielectric::new(1.5));
-    let right_material = Rc::new(Metal::new(Color::new(0.8, 0.6, 0.2), 0.0));
+    let right_material = Rc::new(Metal::new(color!(0.8, 0.6, 0.2), 0.0));
 
     let mut world = HittableList::new();
     [

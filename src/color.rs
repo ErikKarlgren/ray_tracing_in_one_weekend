@@ -7,10 +7,17 @@ pub struct Color {
     pub blue: f64,
 }
 
-impl Color {
-    pub fn new(red: f64, green: f64, blue: f64) -> Color {
-        Color { red, green, blue }
-    }
+/// Create a `Color` out of 3 f64 values corresponding
+/// each to red, green and blue.
+#[macro_export]
+macro_rules! color {
+    ($red:expr, $green:expr, $blue:expr) => {
+        Color {
+            red: $red,
+            green: $green,
+            blue: $blue,
+        }
+    };
 }
 
 impl Add for Color {
