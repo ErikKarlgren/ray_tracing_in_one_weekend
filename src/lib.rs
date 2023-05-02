@@ -39,7 +39,7 @@ pub fn create_image(world: &HittableList, camera: &Camera, image_width: usize) -
 
     for y in (0..image_height).rev() {
         for x in 0..image_width {
-            let mut pixel_color = Color::new(0.0, 0.0, 0.0);
+            let mut pixel_color = color!(0.0, 0.0, 0.0);
             for _ in 0..samples_per_pixel {
                 let u = ((x as f64) + random_num()) / ((image_width - 1) as f64);
                 let v = ((y as f64) + random_num()) / ((image_height - 1) as f64);
@@ -55,7 +55,7 @@ pub fn create_image(world: &HittableList, camera: &Camera, image_width: usize) -
 /// Returns the background color
 fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color {
     if depth <= 0 {
-        return Color::new(0.0, 0.0, 0.0);
+        return color!(0.0, 0.0, 0.0);
     }
 
     let desired_hit_distance = 0.001..f64::INFINITY;
@@ -64,7 +64,7 @@ fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color {
         if let Some((scattered_ray, attenuation)) = hit.material.scatter(ray, &hit) {
             return attenuation * ray_color(&scattered_ray, world, depth - 1);
         }
-        return Color::new(0.0, 0.0, 0.0);
+        return color!(0.0, 0.0, 0.0);
     }
 
     // We generate a white-blue gradient based on the 'y' coordinate.
@@ -73,8 +73,8 @@ fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color {
     // Since Rays use unit vectors for directions, it will be blue
     // the most on the middle-top of the image
     let t = 0.5 * (ray.direction.y + 1.0);
-    let white = Color::new(1.0, 1.0, 1.0);
-    let blue = Color::new(0.5, 0.7, 1.0);
+    let white = color!(1.0, 1.0, 1.0);
+    let blue = color!(0.5, 0.7, 1.0);
 
     // This is called a 'linear interpolation'
     (1.0 - t) * white + t * blue

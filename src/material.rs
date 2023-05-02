@@ -1,4 +1,5 @@
 use crate::{
+    color,
     color::Color,
     hittable::HitRecord,
     ray::Ray,
@@ -90,7 +91,7 @@ impl Dielectric {
 
 impl Material for Dielectric {
     fn scatter(&self, ray_in: &Ray, hit: &HitRecord) -> Option<(Ray, Color)> {
-        let attenuation = Color::new(1.0, 1.0, 1.0);
+        let attenuation = color!(1.0, 1.0, 1.0);
 
         let refraction_ratio = if hit.front_face {
             1.0 / self.refraction_idx
