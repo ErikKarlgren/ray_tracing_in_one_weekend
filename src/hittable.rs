@@ -1,6 +1,6 @@
 use std::{ops::Range, rc::Rc};
 
-use crate::{material::Material, ray::Ray, vec3::Vec3};
+use crate::{material::Material, ray::Ray, vector3::Vec3};
 
 /// Struct that contains all the data about a `Ray` hitting
 /// a 3D structure

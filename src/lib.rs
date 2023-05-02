@@ -6,26 +6,26 @@ mod material;
 mod ray;
 mod rtweekend;
 mod sphere;
-mod vec3;
+mod vector3;
 
 pub use {
+    camera::Camera,
     color::Color,
     hittable::Hittable,
     hittable_list::HittableList,
     material::{Dielectric, Lambertian, Material, Metal},
     sphere::Sphere,
-    vec3::Vec3,
+    vector3::Vec3,
 };
 
 use {
-    camera::Camera,
     ray::Ray,
     rtweekend::{clamp, random_num},
 };
 
 use std::fmt::Write;
 
-pub fn create_image(world: &HittableList, image_width: usize) -> String {
+pub fn create_image(world: &HittableList, camera: &Camera, image_width: usize) -> String {
     // Image
     let aspect_ratio = 16.0 / 9.0; // width / height
     let image_height: usize = (image_width as f64 / aspect_ratio) as usize;
@@ -34,13 +34,10 @@ pub fn create_image(world: &HittableList, image_width: usize) -> String {
 
     let mut image = String::new();
 
-    // Camera
-    let camera = Camera::new(aspect_ratio);
-
     // Render
     write!(&mut image, "P3\n{} {}\n255\n", image_width, image_height).unwrap();
 
-    for y in (0..image_height).into_iter().rev() {
+    for y in (0..image_height).rev() {
         for x in 0..image_width {
             let mut pixel_color = Color::new(0.0, 0.0, 0.0);
             for _ in 0..samples_per_pixel {
